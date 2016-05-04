@@ -6,3 +6,4 @@ def tfidfer():
 	token_dict = token_dict_builder()
 	tfidf = TfidfVectorizer(tokenizer=tokenize, stop_words='english')
 	tfs = tfidf.fit_transform(token_dict.values())
+	return tfs

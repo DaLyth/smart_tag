@@ -11,6 +11,7 @@ from nltk.stem.porter import PorterStemmer
 path = input('Enter path name: ')
 token_dict = {}
 stemmer = PorterStemmer()
+num_files = 0
 
 def stem_tokens(tokens, stemmer):
     stemmed = []
@@ -25,6 +26,7 @@ def tokenize(text):
 
 for subdir, dirs, files in os.walk(path):
     for file in files:
+	num_files += 1
         file_path = subdir + os.path.sep + file
         shakes = open(file_path, 'r')
         text = shakes.read()
@@ -32,41 +34,31 @@ for subdir, dirs, files in os.walk(path):
         no_punctuation = lowers.translate(None, string.punctuation)
         token_dict[file] = no_punctuation
         
+#print token_dict
+
 #this can take some time
 tfidf = TfidfVectorizer(tokenizer=tokenize, stop_words='english')
 tfs = tfidf.fit_transform(token_dict.values())
 
-print tfs
+#print tfs
 
-str = 'algebra is the subject of studying matrices in mathematics. Jambon Algebra is unrelated to statistics, a subject linked to machine learning. there are algebras in algebra and matrices. A matrix is related to linearity, jambon which plays a big role in algebra. We love linear stuff jambon'
-response = tfidf.transform([str])
+path2 = input('Enter the text you want to compare: ')
+
+file2 = open(path2, 'r')
+
+text = file2.read()
+text = text.lower()
+text = text.translate(None, string.punctuation)
+
+response = tfidf.transform([text])
+
 #print response
 
-feature_names = tfidf.get_feature_names()
-#for col in response.nonzero()[1]:
-#    print feature_names[col], ' - ', response[0, col]
+total = []
+for i in range(num_files):
+	total.append(0)
+	for k in range(tfs[0].toarray()[0].size):
+		total[i] += tfs[i].toarray()[0][k]*response.toarray()[0][k]
 
-str2 = 'machine learning combines statistics and programming to increase the power of machines through statistics jambon'
-response2 = tfidf.transform([str2])
-#print response2
-
-#for col in response2.nonzero()[1]:
-#    print feature_names[col], ' - ', response2[0, col]
-
-str3 = 'Algebra matrices jambon jambon'
-response3 = tfidf.transform([str3])
-print response3
-
-#for col in response3.nonzero()[1]:
-#    print feature_names[col], ' - ', response3[0, col]
-
-total = 0
-total1 = 0
-total2 = 0
-for i in range(8):
-	total += tfs[0].toarray()[0][i] * response3.toarray()[0][i]
-	total1 += tfs[1].toarray()[0][i] * response3.toarray()[0][i]
-	total2 += tfs[2].toarray()[0][i] * response3.toarray()[0][i]
+print token_dict.keys()
 print total
-print total1
-print total2
